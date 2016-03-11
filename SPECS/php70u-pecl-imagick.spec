@@ -80,15 +80,16 @@ cd %{pecl_name}-%{version}%{?prever}
 install -Dpm 0644 ../package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 
 # Install config file
-install -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
+install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
 
-rm -rf %{buildroot}/%{_includedir}/php/ext/%{pecl_name}/
+rm -rf %{buildroot}%{php_incldir}/ext/%{pecl_name}/
 
 
 %check
 # simple module load test
 pushd %{pecl_name}-%{version}%{?prever}
-php --no-php-ini \
+%{__php} \
+    --no-php-ini \
     --define extension_dir=%{buildroot}%{php_extdir} \
     --define extension=%{pecl_name}.so \
     --modules | grep %{pecl_name}
@@ -114,7 +115,7 @@ fi
 %doc %{pecl_name}-%{version}%{?prever}/examples %{pecl_name}-%{version}%{?prever}/CREDITS
 %{php_extdir}/%{pecl_name}.so
 %{pecl_xmldir}/%{pecl_name}.xml
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
+%config(noreplace) %verify(not md5 mtime size) %{php_inidir}/%{ini_name}
 
 
 %changelog
@@ -122,6 +123,7 @@ fi
 - Port from Fedora to IUS
 - Latest upstream
 - Remove TODO and INSTALL from %%files
+- Use standard PHP macros
 
 * Thu Feb 25 2016 Remi Collet <remi@fedoraproject.org> - 3.1.2-5
 - drop scriptlets (replaced by file triggers in php-pear) #1310546
