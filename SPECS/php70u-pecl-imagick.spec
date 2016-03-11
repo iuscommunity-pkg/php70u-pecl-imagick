@@ -1,13 +1,5 @@
-%global	php_apiver  %((echo 0; php -i 2>/dev/null | sed -n 's/^PHP API => //p') | tail -1)
-%{!?__pecl:		%{expand:	%%global __pecl	%{_bindir}/pecl}}
-%{!?php_extdir:	%{expand:	%%global php_extdir	%(php-config --extension-dir)}}
-
 %global peclName  imagick
-%if "%{php_version}" < "5.6"
-%global ini_name  %{peclName}.ini
-%else
 %global ini_name  40-%{peclName}.ini
-%endif
 
 Summary:		Provides a wrapper to the ImageMagick library
 Name:		php-pecl-%peclName
@@ -17,7 +9,6 @@ License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
 Source1:		%peclName.ini
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 URL:			http://pecl.php.net/package/%peclName
 BuildRequires:	php-pear >= 1.4.7
 BuildRequires: php-devel >= 5.1.3, ImageMagick-devel >= 6.2.4
@@ -25,12 +16,8 @@ BuildRequires: php-devel >= 5.1.3, ImageMagick-devel >= 6.2.4
 Requires(post):	%{__pecl}
 Requires(postun):	%{__pecl}
 %endif
-%if 0%{?php_zend_api:1}
 Requires:		php(zend-abi) = %{php_zend_api}
 Requires:		php(api) = %{php_core_api}
-%else
-Requires:		php-api = %{php_apiver}
-%endif
 Provides:		php-pecl(%peclName) = %{version}
 
 Conflicts:	php-pecl-gmagick
@@ -62,8 +49,6 @@ phpize
 %{__make}
 
 %install
-rm -rf %{buildroot}
-
 cd %peclName-%{version}%{?prever}
 
 %{__make} install \
@@ -85,8 +70,6 @@ php --no-php-ini \
     --define extension=%peclName.so \
     --modules | grep %peclName
 
-%clean
-rm -rf %{buildroot}
 
 %if 0%{?fedora} < 24
 %post
@@ -103,7 +86,6 @@ fi
 %endif
 
 %files
-%defattr(-,root,root,-)
 %doc %peclName-%{version}%{?prever}/examples %peclName-%{version}%{?prever}/{CREDITS,TODO,INSTALL}
 %{php_extdir}/%peclName.so
 %{pecl_xmldir}/%peclName.xml
