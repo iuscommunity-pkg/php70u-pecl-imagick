@@ -1,6 +1,7 @@
 %global pecl_name imagick
 %global php_base php70u
 %global ini_name  40-%{pecl_name}.ini
+%global with_zts 0%{?__ztsphp:1}
 
 Summary: Provides a wrapper to the ImageMagick library
 Name: %{php_base}-pecl-%{pecl_name}
@@ -60,39 +61,65 @@ IMPORTANT: Version 2.x API is not compatible with earlier versions.
 
 %prep
 %setup -qc
+mv %{pecl_name}-%{version} NTS
 
-cd %{pecl_name}-%{version}%{?prever}
+%if %{with_zts}
+cp -r NTS ZTS
+%endif
 
 
 %build
-cd %{pecl_name}-%{version}%{?prever}
+pushd NTS
 phpize
 %{configure} --with-%{pecl_name}=%{prefix} --with-php-config=%{_bindir}/php-config
 %{__make}
+popd
+
+%if %{with_zts}
+pushd ZTS
+zts-phpize
+%{configure} --with-%{pecl_name}=%{prefix} --with-php-config=%{_bindir}/zts-php-config
+%{__make}
+popd
+%endif
 
 
 %install
-cd %{pecl_name}-%{version}%{?prever}
-
-%{__make} install INSTALL_ROOT=%{buildroot}
+%{__make} install INSTALL_ROOT=%{buildroot} -C NTS
 
 # Install XML package description
-install -Dpm 0644 ../package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
+install -Dpm 0644 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 
 # Install config file
 install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
 
+%if %{with_zts}
+%{__make} install INSTALL_ROOT=%{buildroot} -C ZTS
+
+# Install config file
+install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
+%endif
+
 rm -rf %{buildroot}%{php_incldir}/ext/%{pecl_name}/
+%if %{with_zts}
+rm -rf %{buildroot}%{php_ztsincldir}/ext/%{pecl_name}/
+%endif
 
 
 %check
 # simple module load test
-pushd %{pecl_name}-%{version}%{?prever}
 %{__php} \
     --no-php-ini \
     --define extension_dir=%{buildroot}%{php_extdir} \
     --define extension=%{pecl_name}.so \
     --modules | grep %{pecl_name}
+%if %{with_zts}
+%{__ztsphp} \
+    --no-php-ini \
+    --define extension_dir=%{buildroot}%{php_ztsextdir} \
+    --define extension=%{pecl_name}.so \
+    --modules | grep %{pecl_name}
+%endif
 
 
 %if 0%{?fedora} < 24
@@ -112,10 +139,15 @@ fi
 
 
 %files
-%doc %{pecl_name}-%{version}%{?prever}/examples %{pecl_name}-%{version}%{?prever}/CREDITS
+%doc NTS/examples NTS/CREDITS
 %{php_extdir}/%{pecl_name}.so
 %{pecl_xmldir}/%{pecl_name}.xml
 %config(noreplace) %verify(not md5 mtime size) %{php_inidir}/%{ini_name}
+
+%if %{with_zts}
+%{php_ztsextdir}/%{pecl_name}.so
+%config(noreplace) %verify(not md5 mtime size) %{php_ztsinidir}/%{ini_name}
+%endif
 
 
 %changelog
@@ -124,6 +156,7 @@ fi
 - Latest upstream
 - Remove TODO and INSTALL from %%files
 - Use standard PHP macros
+- Enabled ZTS support
 
 * Thu Feb 25 2016 Remi Collet <remi@fedoraproject.org> - 3.1.2-5
 - drop scriptlets (replaced by file triggers in php-pear) #1310546
