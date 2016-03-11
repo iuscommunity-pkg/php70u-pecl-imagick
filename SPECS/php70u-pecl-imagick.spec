@@ -1,24 +1,45 @@
 %global pecl_name imagick
+%global php_base php70u
 %global ini_name  40-%{pecl_name}.ini
 
 Summary: Provides a wrapper to the ImageMagick library
-Name: php-pecl-%{pecl_name}
-Version: 3.1.2
-Release: 5%{?dist}
+Name: %{php_base}-pecl-%{pecl_name}
+Version: 3.4.1
+Release: 1.ius%{?dist}
 License: PHP
 Group: Development/Libraries
 Source0: http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
 Source1: %{pecl_name}.ini
 URL: http://pecl.php.net/package/%{pecl_name}
-BuildRequires: php-pear >= 1.4.7
-BuildRequires: php-devel >= 5.1.3, ImageMagick-devel >= 6.2.4
+BuildRequires: %{php_base}-pear
+BuildRequires: %{php_base}-devel
+# https://pecl.php.net/package-info.php?package=imagick&version=3.4.0RC2
+BuildRequires: ImageMagick-devel >= 6.5.3.10
 %if 0%{?fedora} < 24
-Requires(post): %{__pecl}
-Requires(postun): %{__pecl}
+Requires(post): %{php_base}-pear
+Requires(postun): %{php_base}-pear
 %endif
 Requires: php(zend-abi) = %{php_zend_api}
 Requires: php(api) = %{php_core_api}
+
+# provide the stock name
+Provides: php-pecl-%{pecl_name} = %{version}
+Provides: php-pecl-%{pecl_name}%{?_isa} = %{version}
+
+# provide the stock and IUS names without pecl
+Provides: php-%{pecl_name} = %{version}
+Provides: php-%{pecl_name}%{?_isa} = %{version}
+Provides: %{php_base}-%{pecl_name} = %{version}
+Provides: %{php_base}-%{pecl_name}%{?_isa} = %{version}
+
+# provide the stock and IUS names in pecl() format
 Provides: php-pecl(%{pecl_name}) = %{version}
+Provides: php-pecl(%{pecl_name})%{?_isa} = %{version}
+Provides: %{php_base}-pecl(%{pecl_name}) = %{version}
+Provides: %{php_base}-pecl(%{pecl_name})%{?_isa} = %{version}
+
+# conflict with the stock name
+Conflicts: php-pecl-%{pecl_name} < %{version}
 
 Conflicts: php-pecl-gmagick
 
@@ -46,7 +67,7 @@ cd %{pecl_name}-%{version}%{?prever}
 %build
 cd %{pecl_name}-%{version}%{?prever}
 phpize
-%{configure} --with-%{pecl_name}
+%{configure} --with-%{pecl_name}=%{prefix} --with-php-config=%{_bindir}/php-config
 %{__make}
 
 
@@ -90,13 +111,18 @@ fi
 
 
 %files
-%doc %{pecl_name}-%{version}%{?prever}/examples %{pecl_name}-%{version}%{?prever}/{CREDITS,TODO,INSTALL}
+%doc %{pecl_name}-%{version}%{?prever}/examples %{pecl_name}-%{version}%{?prever}/CREDITS
 %{php_extdir}/%{pecl_name}.so
 %{pecl_xmldir}/%{pecl_name}.xml
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
 
 
 %changelog
+* Fri Mar 11 2016 Carl George <carl.george@rackspace.com> - 3.4.1-1.ius
+- Port from Fedora to IUS
+- Latest upstream
+- Remove TODO and INSTALL from %%files
+
 * Thu Feb 25 2016 Remi Collet <remi@fedoraproject.org> - 3.1.2-5
 - drop scriptlets (replaced by file triggers in php-pear) #1310546
 
