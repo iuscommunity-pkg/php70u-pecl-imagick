@@ -252,7 +252,7 @@ fi
 - Add versions to BR for php-devel and ImageMagick-devel
 - Remove -n option from %%setup which was excessive with -c
 - Module install/uninstall actions surround with %%if 0%{?pecl_(un)?install:1} ... %%endif
-- Add Provides: php-pecl(%peclName) = %{version}
+- Add Provides: php-pecl(%%peclName) = %%{version}
 
 * Sat Jan 3 2009 Pavel Alexeev <Pahan [ at ] Hubbitus [ DOT ] spb [ dOt.] su> - 2.2.1-2
 - License changed to PHP (thanks to Remi Collet)
