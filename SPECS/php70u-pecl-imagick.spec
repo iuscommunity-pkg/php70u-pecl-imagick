@@ -138,6 +138,8 @@ fi
 
 
 %files
+%{!?_licensedir:%global license %%doc}
+%license NTS/LICENSE
 %doc NTS/examples NTS/CREDITS
 %{php_extdir}/%{pecl_name}.so
 %{pecl_xmldir}/%{pecl_name}.xml
@@ -153,6 +155,7 @@ fi
 * Fri Jun 17 2016 Carl George <carl.george@rackspace.com> - 3.4.1-2.ius
 - Clean up auto-provides filters
 - Ensure scriptlets have 0 exit status
+- Install LICENSE appropriately
 
 * Fri Mar 11 2016 Carl George <carl.george@rackspace.com> - 3.4.1-1.ius
 - Port from Fedora to IUS
