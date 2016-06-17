@@ -6,7 +6,7 @@
 Summary: Provides a wrapper to the ImageMagick library
 Name: %{php_base}-pecl-%{pecl_name}
 Version: 3.4.1
-Release: 1.ius%{?dist}
+Release: 2.ius%{?dist}
 License: PHP
 Group: Development/Libraries
 Source0: http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
@@ -44,11 +44,9 @@ Conflicts: php-pecl-%{pecl_name} < %{version}
 
 Conflicts: php-pecl-gmagick
 
-# RPM 4.8
 %{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%{?filter_provides_in: %filter_provides_in %{php_ztsextdir}/.*\.so$}
 %{?filter_setup}
-# RPM 4.9
-%global __provides_exclude_from %{?__provides_exclude_from:%__provides_exclude_from|}%{php_extdir}/.*\\.so$
 
 
 %description
@@ -151,6 +149,9 @@ fi
 
 
 %changelog
+* Fri Jun 17 2016 Carl George <carl.george@rackspace.com> - 3.4.1-2.ius
+- Clean up auto-provides filters
+
 * Fri Mar 11 2016 Carl George <carl.george@rackspace.com> - 3.4.1-1.ius
 - Port from Fedora to IUS
 - Latest upstream
