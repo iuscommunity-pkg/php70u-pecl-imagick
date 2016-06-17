@@ -60,6 +60,12 @@ IMPORTANT: Version 2.x API is not compatible with earlier versions.
 
 %prep
 %setup -qc
+
+# Don't install/register tests or LICENSE
+sed -e 's/role="test"/role="src"/' \
+    -e '/LICENSE/s/role="doc"/role="src"/' \
+    -i package.xml
+
 mv %{pecl_name}-%{version} NTS
 
 %if %{with zts}
@@ -98,6 +104,10 @@ install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
 # Install config file
 install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
 %endif
+
+for i in $(grep 'role="doc"' package.xml | sed -e 's/^.*name="//;s/".*$//')
+do install -D -p -m 644 NTS/$i %{buildroot}%{pecl_docdir}/%{pecl_name}/$i
+done
 
 rm -rf %{buildroot}%{php_incldir}/ext/%{pecl_name}/
 %if %{with zts}
@@ -140,7 +150,7 @@ fi
 %files
 %{!?_licensedir:%global license %%doc}
 %license NTS/LICENSE
-%doc NTS/examples NTS/CREDITS
+%doc %{pecl_docdir}/%{pecl_name}
 %{php_extdir}/%{pecl_name}.so
 %{pecl_xmldir}/%{pecl_name}.xml
 %config(noreplace) %verify(not md5 mtime size) %{php_inidir}/%{ini_name}
@@ -156,6 +166,7 @@ fi
 - Clean up auto-provides filters
 - Ensure scriptlets have 0 exit status
 - Install LICENSE appropriately
+- Don't install/register tests or LICENSE during %%prep
 
 * Fri Mar 11 2016 Carl George <carl.george@rackspace.com> - 3.4.1-1.ius
 - Port from Fedora to IUS
