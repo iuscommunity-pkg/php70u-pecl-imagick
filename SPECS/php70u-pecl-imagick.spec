@@ -122,16 +122,16 @@ rm -rf %{buildroot}%{php_ztsincldir}/ext/%{pecl_name}/
 
 
 %if 0%{?fedora} < 24
-%post
 %if 0%{?pecl_install:1}
-%{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml
+%post
+%{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml >/dev/null || :
 %endif
 
 
-%postun
 %if 0%{?pecl_uninstall:1}
+%postun
 if [ "$1" -eq "0" ]; then
-%{pecl_uninstall} %{pecl_name}
+    %{pecl_uninstall} %{pecl_name} >/dev/null || :
 fi
 %endif
 %endif
@@ -152,6 +152,7 @@ fi
 %changelog
 * Fri Jun 17 2016 Carl George <carl.george@rackspace.com> - 3.4.1-2.ius
 - Clean up auto-provides filters
+- Ensure scriptlets have 0 exit status
 
 * Fri Mar 11 2016 Carl George <carl.george@rackspace.com> - 3.4.1-1.ius
 - Port from Fedora to IUS
