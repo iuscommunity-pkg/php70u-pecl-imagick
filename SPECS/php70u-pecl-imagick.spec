@@ -77,14 +77,14 @@ cp -r NTS ZTS
 pushd NTS
 phpize
 %{configure} --with-%{pecl_name}=%{prefix} --with-php-config=%{_bindir}/php-config
-%{__make}
+%{__make} %{?_smp_mflags}
 popd
 
 %if %{with zts}
 pushd ZTS
 zts-phpize
 %{configure} --with-%{pecl_name}=%{prefix} --with-php-config=%{_bindir}/zts-php-config
-%{__make}
+%{__make} %{?_smp_mflags}
 popd
 %endif
 
@@ -167,6 +167,7 @@ fi
 - Ensure scriptlets have 0 exit status
 - Install LICENSE appropriately
 - Don't install/register tests or LICENSE during %%prep
+- Compile with %%_smp_mflags
 
 * Fri Mar 11 2016 Carl George <carl.george@rackspace.com> - 3.4.1-1.ius
 - Port from Fedora to IUS
