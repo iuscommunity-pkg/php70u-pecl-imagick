@@ -1,7 +1,8 @@
 %global pecl_name imagick
 %global php_base php70u
 %global ini_name  40-%{pecl_name}.ini
-%global with_zts 0%{?__ztsphp:1}
+
+%bcond_without zts
 
 Summary: Provides a wrapper to the ImageMagick library
 Name: %{php_base}-pecl-%{pecl_name}
@@ -61,7 +62,7 @@ IMPORTANT: Version 2.x API is not compatible with earlier versions.
 %setup -qc
 mv %{pecl_name}-%{version} NTS
 
-%if %{with_zts}
+%if %{with zts}
 cp -r NTS ZTS
 %endif
 
@@ -73,7 +74,7 @@ phpize
 %{__make}
 popd
 
-%if %{with_zts}
+%if %{with zts}
 pushd ZTS
 zts-phpize
 %{configure} --with-%{pecl_name}=%{prefix} --with-php-config=%{_bindir}/zts-php-config
@@ -91,7 +92,7 @@ install -Dpm 0644 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 # Install config file
 install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
 
-%if %{with_zts}
+%if %{with zts}
 %{__make} install INSTALL_ROOT=%{buildroot} -C ZTS
 
 # Install config file
@@ -99,7 +100,7 @@ install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
 %endif
 
 rm -rf %{buildroot}%{php_incldir}/ext/%{pecl_name}/
-%if %{with_zts}
+%if %{with zts}
 rm -rf %{buildroot}%{php_ztsincldir}/ext/%{pecl_name}/
 %endif
 
@@ -111,7 +112,7 @@ rm -rf %{buildroot}%{php_ztsincldir}/ext/%{pecl_name}/
     --define extension_dir=%{buildroot}%{php_extdir} \
     --define extension=%{pecl_name}.so \
     --modules | grep %{pecl_name}
-%if %{with_zts}
+%if %{with zts}
 %{__ztsphp} \
     --no-php-ini \
     --define extension_dir=%{buildroot}%{php_ztsextdir} \
@@ -142,7 +143,7 @@ fi
 %{pecl_xmldir}/%{pecl_name}.xml
 %config(noreplace) %verify(not md5 mtime size) %{php_inidir}/%{ini_name}
 
-%if %{with_zts}
+%if %{with zts}
 %{php_ztsextdir}/%{pecl_name}.so
 %config(noreplace) %verify(not md5 mtime size) %{php_ztsinidir}/%{ini_name}
 %endif
