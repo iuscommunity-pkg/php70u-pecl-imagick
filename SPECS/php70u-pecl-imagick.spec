@@ -6,8 +6,8 @@
 
 Summary: Provides a wrapper to the ImageMagick library
 Name: %{php_base}-pecl-%{pecl_name}
-Version: 3.4.1
-Release: 2.ius%{?dist}
+Version: 3.4.3
+Release: 1.ius%{?dist}
 License: PHP
 Group: Development/Libraries
 Source0: http://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
@@ -162,6 +162,9 @@ fi
 
 
 %changelog
+* Thu Feb 02 2017 Ben Harper <ben.harper@rackspace.com> - 3.4.3-1.ius
+- Latest upstream
+
 * Fri Jun 17 2016 Carl George <carl.george@rackspace.com> - 3.4.1-2.ius
 - Clean up auto-provides filters
 - Ensure scriptlets have 0 exit status
